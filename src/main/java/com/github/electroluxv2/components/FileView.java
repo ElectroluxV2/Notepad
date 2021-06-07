@@ -52,6 +52,10 @@ public class FileView extends Tab {
         }
     }
 
+    public ModdedTextArea getTextArea() {
+        return textArea;
+    }
+
     private void handleLineNumbers() {
         // Re add line labels
         labelContainer.getChildren().clear();
@@ -65,7 +69,6 @@ public class FileView extends Tab {
             // Sync scrollbars, only when there is scrollbar
             if (textArea.getScrollTop() > 0 && !bind) {
                 bind = true;
-                System.out.println("bind");
                 scrollPane.vvalueProperty().bindBidirectional(textArea.vvalueProperty());
             }
         });

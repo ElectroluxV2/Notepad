@@ -1,6 +1,7 @@
 package com.github.electroluxv2;
 
 import com.github.electroluxv2.components.FileView;
+import com.github.electroluxv2.components.ModdedTabPane;
 import com.github.electroluxv2.components.TopMenu;
 import com.github.electroluxv2.utils.DarkMode;
 import com.github.electroluxv2.utils.EditorProperties;
@@ -17,14 +18,14 @@ import java.io.IOException;
 
 public class Notepad extends Application {
     final TopMenu topMenu;
-    final TabPane fileViewContainer;
+    final ModdedTabPane fileViewContainer;
     final Label infoLabel;
     final Scene scene;
 
     public Notepad() throws IOException {
         // Create components
         topMenu = new TopMenu();
-        fileViewContainer = new TabPane();
+        fileViewContainer = new ModdedTabPane();
         VBox.setVgrow(fileViewContainer, Priority.ALWAYS);
         infoLabel = new Label("Open file using top menu");
         scene = new Scene(new VBox(topMenu, fileViewContainer, infoLabel), 1280, 800);
@@ -44,31 +45,35 @@ public class Notepad extends Application {
 
     private void loadUserChoices() throws IOException {
         // User choices
-        topMenu.viewDarkModeEnabled.setSelected(EditorProperties.getBoolean("darkModeEnabled"));
-        DarkMode.change(scene, topMenu.viewDarkModeEnabled.isSelected());
+        topMenu.viewDarkEnabled.setSelected(EditorProperties.getBoolean("darkModeEnabled"));
+        DarkMode.change(scene, topMenu.viewDarkEnabled.isSelected());
     }
 
     private void respondToMenu() {
-        // Respond to file open
+        // Respond to file Section
         topMenu.fileOpen.onAction(this::onOpenFile);
 
-        // Respond to theme change
-        topMenu.viewDarkModeEnabled.setOnAction(actionEvent -> {
-            try {
-                DarkMode.change(scene, topMenu.viewDarkModeEnabled.isSelected());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
+        // Respond to view Section
+        topMenu.viewDisableEdit.onAction(this::setDisableOnEachTextArea);
+        topMenu.viewDarkEnabled.onAction(() -> DarkMode.change(scene, topMenu.viewDarkEnabled.isSelected()));
+    }
+
+    private Void setDisableOnEachTextArea() {
+        for (final var view : fileViewContainer.getViews()) {
+            view.getTextArea().setDisable(topMenu.viewDisableEdit.isSelected());
+        }
+        return null;
     }
 
     private Void onOpenFile() {
         final var fileChooser = new FileChooser();
-        fileChooser.setTitle("Open text file");
+        fileChooser.setTitle("Open text files");
         final var selected = fileChooser.showOpenMultipleDialog(scene.getWindow());
 
         for (final var file : selected) {
-            fileViewContainer.getTabs().add(new FileView(file));
+            final var view = new FileView(file);
+            view.getTextArea().setDisable(topMenu.viewDisableEdit.isSelected());
+            fileViewContainer.addView(view);
         }
 
         return null;

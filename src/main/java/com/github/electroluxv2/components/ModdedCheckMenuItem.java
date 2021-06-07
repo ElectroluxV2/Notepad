@@ -1,24 +1,24 @@
 package com.github.electroluxv2.components;
 
 import javafx.scene.Node;
-import javafx.scene.control.MenuItem;
+import javafx.scene.control.CheckMenuItem;
 
 import java.util.concurrent.Callable;
 
-public class ModdedMenuItem extends MenuItem {
+public class ModdedCheckMenuItem extends CheckMenuItem {
     private Callable<Void> handler;
 
-    public ModdedMenuItem() {
+    public ModdedCheckMenuItem() {
         super();
         registerHandler();
     }
 
-    public ModdedMenuItem(String s) {
+    public ModdedCheckMenuItem(String s) {
         super(s);
         registerHandler();
     }
 
-    public ModdedMenuItem(String s, Node node) {
+    public ModdedCheckMenuItem(String s, Node node) {
         super(s, node);
         registerHandler();
     }
