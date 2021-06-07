@@ -9,13 +9,27 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
-public class FileView extends Tab {
-    public FileView(final String filename) {
-        super(filename);
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.util.StringJoiner;
+import java.util.stream.Stream;
 
-        final var textArea = new ModdedTextArea();
-        final var labelContainer = new VBox();
-        final var scrollPane = new ScrollPane(labelContainer);
+public class FileView extends Tab {
+    private final File file;
+    private final ModdedTextArea textArea;
+    private final VBox labelContainer;
+    private final ScrollPane scrollPane;
+    private boolean bind = false;
+
+    public FileView(final File file) {
+        super(file.getName());
+        this.file = file;
+
+        textArea = new ModdedTextArea();
+        labelContainer = new VBox();
+        scrollPane = new ScrollPane(labelContainer);
 
         labelContainer.setPadding(new Insets(5,5,5,5));
         scrollPane.setMaxWidth(40);
@@ -27,22 +41,40 @@ public class FileView extends Tab {
 
         this.setContent(hBox);
 
-        // Stupid java
-        final boolean[] bind = {false};
-        textArea.textProperty().addListener(observable -> {
-            // Re add line labels
-            labelContainer.getChildren().clear();
-            final var rowCount = StringUtils.count(textArea.getText(), System.lineSeparator());
+        // Add new labels when user input
+        textArea.textProperty().addListener(observable -> handleLineNumbers());
 
-            for (int i = 0; i <= rowCount; i++) {
-                labelContainer.getChildren().addAll(new Label(String.valueOf(i + 1)));
-            }
+        try {
+            loadContentFromFile();
+        } catch (IOException e) {
+            textArea.setText("Failed to load file: %s".formatted(e.getMessage()));
+            textArea.setDisable(true);
+        }
+    }
 
+    private void handleLineNumbers() {
+        // Re add line labels
+        labelContainer.getChildren().clear();
+        final var rowCount = StringUtils.count(textArea.getText(), System.lineSeparator());
+
+        for (int i = 0; i <= rowCount; i++) {
+            labelContainer.getChildren().addAll(new Label(String.valueOf(i + 1)));
+        }
+
+        textArea.setOnScroll(scrollEvent -> {
             // Sync scrollbars, only when there is scrollbar
-            if (textArea.getScrollTop() > 0 && !bind[0]) {
-                bind[0] = true;
+            if (textArea.getScrollTop() > 0 && !bind) {
+                bind = true;
+                System.out.println("bind");
                 scrollPane.vvalueProperty().bindBidirectional(textArea.vvalueProperty());
             }
         });
+    }
+
+    private void loadContentFromFile() throws IOException {
+        final Stream<String> lines = Files.lines(file.toPath(), Charset.defaultCharset());
+        final var sj = new StringJoiner(System.lineSeparator());
+        lines.forEach(sj::add);
+        textArea.setText(sj.toString());
     }
 }
