@@ -17,7 +17,8 @@ public class TopMenu extends MenuBar {
         final var viewMenu = new Menu("View");
         final var viewMenuDisableEdit = new CheckMenuItem("Disable edit");
         final var viewMenuDisableWrapLines = new CheckMenuItem("Wrap lines");
-        viewMenu.getItems().addAll(viewMenuDisableEdit, viewMenuDisableWrapLines);
+        final var viewMenuDarkMode = new CheckMenuItem("Dark mode");
+        viewMenu.getItems().addAll(viewMenuDisableEdit, viewMenuDisableWrapLines, viewMenuDarkMode);
         this.getMenus().add(viewMenu);
 
         final var cryptMenu = new Menu("Crypt");
