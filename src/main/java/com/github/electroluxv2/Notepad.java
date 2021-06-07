@@ -55,7 +55,15 @@ public class Notepad extends Application {
 
         // Respond to view Section
         topMenu.viewDisableEdit.onAction(this::setDisableOnEachTextArea);
+        topMenu.viewDisableWrapLines.onAction(this::setTextWrapOnEachTextArea);
         topMenu.viewDarkEnabled.onAction(() -> DarkMode.change(scene, topMenu.viewDarkEnabled.isSelected()));
+    }
+
+    private Void setTextWrapOnEachTextArea() {
+        for (final var view : fileViewContainer.getViews()) {
+            view.getTextArea().setWrapText(topMenu.viewDisableWrapLines.isSelected());
+        }
+        return null;
     }
 
     private Void setDisableOnEachTextArea() {
@@ -73,6 +81,7 @@ public class Notepad extends Application {
         for (final var file : selected) {
             final var view = new FileView(file);
             view.getTextArea().setDisable(topMenu.viewDisableEdit.isSelected());
+            view.getTextArea().setWrapText(topMenu.viewDisableWrapLines.isSelected());
             fileViewContainer.addView(view);
         }
 
