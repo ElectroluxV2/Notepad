@@ -10,6 +10,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -17,7 +18,7 @@ import java.util.StringJoiner;
 import java.util.stream.Stream;
 
 public class FileView extends Tab {
-    private final File file;
+    private File file;
     private final ModdedTextArea textArea;
     private final VBox labelContainer;
     private final ScrollPane scrollPane;
@@ -41,15 +42,49 @@ public class FileView extends Tab {
 
         this.setContent(hBox);
 
-        // Add new labels when user input
-        textArea.textProperty().addListener(observable -> handleLineNumbers());
-
         try {
             loadContentFromFile();
         } catch (IOException e) {
             textArea.setText("Failed to load file: %s".formatted(e.getMessage()));
             textArea.setDisable(true);
+        } finally {
+            handleLineNumbers();
         }
+
+        // Add new labels when user input
+        textArea.textProperty().addListener(observable -> {
+            setText(this.file.getName() + " *");
+            handleLineNumbers();
+        });
+
+        // Sync scroll
+        textArea.setOnScroll(scrollEvent -> {
+            // Sync scrollbars, only when there is scrollbar
+            if (textArea.getScrollTop() > 0 && !bind) {
+                bind = true;
+                scrollPane.vvalueProperty().bindBidirectional(textArea.vvalueProperty());
+            }
+        });
+    }
+
+    public void save() throws IOException {
+        save(file);
+    }
+
+    public void save(final File saveAsFile) throws IOException {
+        final var contest = textArea.getParagraphs();
+        final var fw = new FileWriter(saveAsFile, false);
+        contest.forEach(sequence -> {
+            try {
+                fw.append(sequence);
+                fw.append(System.lineSeparator());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+        fw.close();
+        setText(saveAsFile.getName());
+        file = saveAsFile;
     }
 
     public ModdedTextArea getTextArea() {
@@ -64,14 +99,6 @@ public class FileView extends Tab {
         for (int i = 0; i <= rowCount; i++) {
             labelContainer.getChildren().addAll(new Label(String.valueOf(i + 1)));
         }
-
-        textArea.setOnScroll(scrollEvent -> {
-            // Sync scrollbars, only when there is scrollbar
-            if (textArea.getScrollTop() > 0 && !bind) {
-                bind = true;
-                scrollPane.vvalueProperty().bindBidirectional(textArea.vvalueProperty());
-            }
-        });
     }
 
     private void loadContentFromFile() throws IOException {

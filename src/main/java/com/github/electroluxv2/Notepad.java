@@ -8,7 +8,6 @@ import com.github.electroluxv2.utils.EditorProperties;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
-import javafx.scene.control.TabPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
@@ -29,9 +28,7 @@ public class Notepad extends Application {
         VBox.setVgrow(fileViewContainer, Priority.ALWAYS);
         infoLabel = new Label("Open file using top menu");
         scene = new Scene(new VBox(topMenu, fileViewContainer, infoLabel), 1280, 800);
-
     }
-
 
     @Override
     public void start(final Stage stage) throws IOException {
@@ -52,6 +49,9 @@ public class Notepad extends Application {
     private void respondToMenu() {
         // Respond to file Section
         topMenu.fileOpen.onAction(this::onOpenFile);
+        topMenu.fileSave.onAction(this::onSaveFile);
+        topMenu.fileSaveAll.onAction(this::onSaveFileAll);
+        topMenu.fileSaveAs.onAction(this::onSaveFileAs);
 
         // Respond to view Section
         topMenu.viewDisableEdit.onAction(this::setDisableOnEachTextArea);
@@ -88,7 +88,30 @@ public class Notepad extends Application {
         return null;
     }
 
-    public static void main(String[] args) {
+    private Void onSaveFile() throws IOException {
+        final var view = (FileView) fileViewContainer.getSelectionModel().getSelectedItem();
+        view.save();
+        return null;
+    }
+
+    private Void onSaveFileAs() throws IOException {
+        final var view = (FileView) fileViewContainer.getSelectionModel().getSelectedItem();
+
+        final var fileChooser = new FileChooser();
+        fileChooser.setTitle("Save as");
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("All Files", "*.*"));
+        view.save(fileChooser.showSaveDialog(scene.getWindow()));
+        return null;
+    }
+
+    private Void onSaveFileAll() throws IOException {
+        for (final var view : fileViewContainer.getViews()) {
+            view.save();
+        }
+        return null;
+    }
+
+    public static void main(final String[] args) {
         launch(args);
     }
 }
