@@ -1,19 +1,23 @@
 package com.github.electroluxv2;
 
-import com.github.electroluxv2.components.FileView;
-import com.github.electroluxv2.components.ModdedTabPane;
-import com.github.electroluxv2.components.TopMenu;
+import com.github.electroluxv2.components.*;
+import com.github.electroluxv2.utils.Crypt;
 import com.github.electroluxv2.utils.DarkMode;
 import com.github.electroluxv2.utils.EditorProperties;
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.SecretKey;
 import java.io.IOException;
+import java.security.InvalidKeyException;
 
 public class Notepad extends Application {
     final TopMenu topMenu;
@@ -57,6 +61,33 @@ public class Notepad extends Application {
         topMenu.viewDisableEdit.onAction(this::setDisableOnEachTextArea);
         topMenu.viewDisableWrapLines.onAction(this::setTextWrapOnEachTextArea);
         topMenu.viewDarkEnabled.onAction(() -> DarkMode.change(scene, topMenu.viewDarkEnabled.isSelected()));
+
+        // Respond to crypt section
+        topMenu.cryptEncrypt.onAction(this::onEncrypt);
+        topMenu.cryptDecrypt.onAction(this::onDecrypt);
+    }
+
+    private Void onEncrypt() throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
+        final SecretKey secretKey = Crypt.generateKey();
+        final String encoded = Crypt.encodeKey(secretKey);
+
+        new CopyTextAlert(Alert.AlertType.CONFIRMATION, "Save your key", encoded).show();
+
+        final var view = fileViewContainer.getCurrent();
+
+        view.encrypt(secretKey);
+        return null;
+    }
+
+    private Void onDecrypt() throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
+        final var alert = new GetTextAlert(Alert.AlertType.INFORMATION, "Provide your key");
+        alert.showAndWait();
+        final var encodedKey = alert.getText();
+        final var decodedKey = Crypt.decodeKey(encodedKey);
+        final var view = fileViewContainer.getCurrent();
+
+        view.decrypt(decodedKey);
+        return null;
     }
 
     private Void setTextWrapOnEachTextArea() {

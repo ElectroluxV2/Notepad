@@ -1,5 +1,6 @@
 package com.github.electroluxv2.components;
 
+import com.github.electroluxv2.utils.Crypt;
 import com.github.electroluxv2.utils.StringUtils;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
@@ -7,11 +8,15 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.SecretKey;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.security.InvalidKeyException;
 import java.util.StringJoiner;
 import java.util.stream.Stream;
 
@@ -108,6 +113,18 @@ public class FileView extends Tab {
         setText(saveAsFile.getName());
         file = saveAsFile;
         modified = false;
+    }
+
+    public void encrypt(final SecretKey secretKey) throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
+        final var text = getTextArea().getText();
+        final var encrypted = Crypt.encrypt(text, secretKey);
+        getTextArea().setText(encrypted);
+    }
+
+    public void decrypt(final SecretKey secretKey) throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
+        final var encrypted = getTextArea().getText();
+        final var text = Crypt.decrypt(encrypted, secretKey);
+        getTextArea().setText(text);
     }
 
     public ModdedTextArea getTextArea() {

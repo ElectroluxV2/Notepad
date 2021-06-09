@@ -21,6 +21,10 @@ public class ModdedTabPane extends TabPane {
         fileViewList.add(view);
     }
 
+    public FileView getCurrent() {
+        return (FileView) getSelectionModel().getSelectedItem();
+    }
+
     public List<FileView> getViews() {
         return fileViewList;
     }

@@ -33,6 +33,7 @@ public class ModdedMenuItem extends MenuItem {
             try {
                 if (handler != null) handler.call();
             } catch (Exception exception) {
+                exception.printStackTrace();
                 System.err.println(exception.getMessage());
             }
         });
