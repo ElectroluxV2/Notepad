@@ -18,7 +18,7 @@ public class TopMenu extends MenuBar {
     public final ModdedMenuItem cryptEncrypt;
     public final ModdedMenuItem cryptDecrypt;
 
-    public TopMenu() throws IOException {
+    public TopMenu() {
         final var fileMenu = new Menu("File");
         fileOpen = new ModdedMenuItem("Open");
         fileSave = new ModdedMenuItem("Save");
