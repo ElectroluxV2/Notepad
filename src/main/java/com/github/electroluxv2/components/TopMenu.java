@@ -3,10 +3,9 @@ package com.github.electroluxv2.components;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 
-import java.io.IOException;
-
 public class TopMenu extends MenuBar {
     public final ModdedMenuItem fileOpen;
+    public final ModdedMenuItem fileNew;
     public final ModdedMenuItem fileSave;
     public final ModdedMenuItem fileSaveAs;
     public final ModdedMenuItem fileSaveAll;
@@ -21,11 +20,12 @@ public class TopMenu extends MenuBar {
     public TopMenu() {
         final var fileMenu = new Menu("File");
         fileOpen = new ModdedMenuItem("Open");
+        fileNew = new ModdedMenuItem("New");
         fileSave = new ModdedMenuItem("Save");
         fileSaveAs = new ModdedMenuItem("Save as");
         fileSaveAll = new ModdedMenuItem("Save all");
         fileAutoSave = new ModdedCheckMenuItem("Auto save");
-        fileMenu.getItems().addAll(fileOpen, fileSave, fileSaveAs, fileSaveAll, fileAutoSave);
+        fileMenu.getItems().addAll(fileOpen, fileNew, fileSave, fileSaveAs, fileSaveAll, fileAutoSave);
         this.getMenus().add(fileMenu);
 
         final var viewMenu = new Menu("View");

@@ -55,6 +55,7 @@ public class Notepad extends Application {
     private void respondToMenu() {
         // Respond to file Section
         topMenu.fileOpen.onAction(this::onOpenFile);
+        topMenu.fileNew.onAction(this::onNewFile);
         topMenu.fileSave.onAction(this::onSaveFile);
         topMenu.fileSaveAll.onAction(this::onSaveFileAll);
         topMenu.fileSaveAs.onAction(this::onSaveFileAs);
@@ -133,6 +134,22 @@ public class Notepad extends Application {
             view.getTextArea().setWrapText(topMenu.viewDisableWrapLines.isSelected());
             fileViewContainer.addView(view);
         }
+
+        return null;
+    }
+
+    public Void onNewFile() throws IOException {
+        final var fileChooser = new FileChooser();
+        fileChooser.setTitle("Create new");
+
+        final var file = fileChooser.showSaveDialog(scene.getWindow());
+
+        file.createNewFile();
+
+        final var view = new FileView(file);
+        view.getTextArea().setEditable(!topMenu.viewDisableEdit.isSelected());
+        view.getTextArea().setWrapText(topMenu.viewDisableWrapLines.isSelected());
+        fileViewContainer.addView(view);
 
         return null;
     }
