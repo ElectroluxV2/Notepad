@@ -117,7 +117,7 @@ public class Notepad extends Application {
 
     private Void setDisableOnEachTextArea() {
         for (final var view : fileViewContainer.getViews()) {
-            view.getTextArea().setDisable(topMenu.viewDisableEdit.isSelected());
+            view.getTextArea().setEditable(!topMenu.viewDisableEdit.isSelected());
         }
         return null;
     }
@@ -129,7 +129,7 @@ public class Notepad extends Application {
 
         for (final var file : selected) {
             final var view = new FileView(file);
-            view.getTextArea().setDisable(topMenu.viewDisableEdit.isSelected());
+            view.getTextArea().setEditable(!topMenu.viewDisableEdit.isSelected());
             view.getTextArea().setWrapText(topMenu.viewDisableWrapLines.isSelected());
             fileViewContainer.addView(view);
         }
