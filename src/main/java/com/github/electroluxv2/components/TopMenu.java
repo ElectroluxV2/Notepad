@@ -2,6 +2,8 @@ package com.github.electroluxv2.components;
 
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
 
 public class TopMenu extends MenuBar {
     public final ModdedMenuItem fileOpen;
@@ -20,8 +22,11 @@ public class TopMenu extends MenuBar {
     public TopMenu() {
         final var fileMenu = new Menu("File");
         fileOpen = new ModdedMenuItem("Open");
+        fileOpen.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCodeCombination.CONTROL_ANY));
         fileNew = new ModdedMenuItem("New");
+        fileNew.setAccelerator(new KeyCodeCombination(KeyCode.N, KeyCodeCombination.CONTROL_ANY));
         fileSave = new ModdedMenuItem("Save");
+        fileSave.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCodeCombination.CONTROL_ANY));
         fileSaveAs = new ModdedMenuItem("Save as");
         fileSaveAll = new ModdedMenuItem("Save all");
         fileAutoSave = new ModdedCheckMenuItem("Auto save");
@@ -37,7 +42,9 @@ public class TopMenu extends MenuBar {
 
         cryptMenu = new Menu("Crypt");
         cryptEncrypt = new ModdedMenuItem("Encrypt");
+        cryptEncrypt.setAccelerator(new KeyCodeCombination(KeyCode.E, KeyCodeCombination.CONTROL_ANY));
         cryptDecrypt = new ModdedMenuItem("Decrypt");
+        cryptDecrypt.setAccelerator(new KeyCodeCombination(KeyCode.D, KeyCodeCombination.CONTROL_ANY));
         cryptMenu.getItems().addAll(cryptEncrypt, cryptDecrypt);
         this.getMenus().add(cryptMenu);
     }
