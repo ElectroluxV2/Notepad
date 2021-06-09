@@ -128,6 +128,10 @@ public class Notepad extends Application {
         fileChooser.setTitle("Open text files");
         final var selected = fileChooser.showOpenMultipleDialog(scene.getWindow());
 
+        if (selected == null) {
+            return null;
+        }
+
         for (final var file : selected) {
             final var view = new FileView(file);
             view.getTextArea().setEditable(!topMenu.viewDisableEdit.isSelected());
