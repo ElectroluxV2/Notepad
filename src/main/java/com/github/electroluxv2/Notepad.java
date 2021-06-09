@@ -149,7 +149,13 @@ public class Notepad extends Application {
         final var fileChooser = new FileChooser();
         fileChooser.setTitle("Save as");
         fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("All Files", "*.*"));
-        view.save(fileChooser.showSaveDialog(scene.getWindow()));
+        final var file = fileChooser.showSaveDialog(scene.getWindow());
+
+        if (file == null) {
+            return null;
+        }
+
+        view.save(file);
         return null;
     }
 
