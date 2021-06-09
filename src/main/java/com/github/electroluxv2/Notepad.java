@@ -5,9 +5,11 @@ import com.github.electroluxv2.utils.Crypt;
 import com.github.electroluxv2.utils.DarkMode;
 import com.github.electroluxv2.utils.EditorProperties;
 import javafx.application.Application;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tab;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
@@ -65,6 +67,22 @@ public class Notepad extends Application {
         // Respond to crypt section
         topMenu.cryptEncrypt.onAction(this::onEncrypt);
         topMenu.cryptDecrypt.onAction(this::onDecrypt);
+
+        // Block some actions when no file is opened
+        fileViewContainer.getSelectionModel().selectedItemProperty().addListener(this::checkIfActionsShouldBeEnabled);
+        this.checkIfActionsShouldBeEnabled(null, null, null);
+    }
+
+    private void checkIfActionsShouldBeEnabled(final ObservableValue<? extends Tab> ov, final Tab form, final Tab to) {
+        final var totalViewsCount = fileViewContainer.getTabs().size();
+        final var disable = totalViewsCount == 0;
+        topMenu.fileSave.setDisable(disable);
+        topMenu.fileSaveAll.setDisable(disable);
+        topMenu.fileSaveAs.setDisable(disable);
+        topMenu.viewDisableWrapLines.setDisable(disable);
+        topMenu.viewDisableEdit.setDisable(disable);
+        topMenu.cryptMenu.setDisable(disable);
+
     }
 
     private Void onEncrypt() throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
@@ -120,13 +138,13 @@ public class Notepad extends Application {
     }
 
     private Void onSaveFile() throws IOException {
-        final var view = (FileView) fileViewContainer.getSelectionModel().getSelectedItem();
+        final var view = fileViewContainer.getCurrent();
         view.save();
         return null;
     }
 
     private Void onSaveFileAs() throws IOException {
-        final var view = (FileView) fileViewContainer.getSelectionModel().getSelectedItem();
+        final var view = fileViewContainer.getCurrent();
 
         final var fileChooser = new FileChooser();
         fileChooser.setTitle("Save as");

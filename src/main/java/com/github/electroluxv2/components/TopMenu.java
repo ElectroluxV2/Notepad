@@ -14,6 +14,7 @@ public class TopMenu extends MenuBar {
     public final ModdedCheckMenuItem viewDisableEdit;
     public final ModdedCheckMenuItem viewDisableWrapLines;
     public final ModdedCheckMenuItem viewDarkEnabled;
+    public final Menu cryptMenu;
     public final ModdedMenuItem cryptEncrypt;
     public final ModdedMenuItem cryptDecrypt;
 
@@ -34,7 +35,7 @@ public class TopMenu extends MenuBar {
         viewMenu.getItems().addAll(viewDisableEdit, viewDisableWrapLines, viewDarkEnabled);
         this.getMenus().add(viewMenu);
 
-        final var cryptMenu = new Menu("Crypt");
+        cryptMenu = new Menu("Crypt");
         cryptEncrypt = new ModdedMenuItem("Encrypt");
         cryptDecrypt = new ModdedMenuItem("Decrypt");
         cryptMenu.getItems().addAll(cryptEncrypt, cryptDecrypt);
