@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ModdedTabPane extends TabPane {
-    private final List<FileView> fileViewList = new ArrayList<FileView>();
+    private final List<FileView> fileViewList = new ArrayList<>();
 
     public ModdedTabPane() { }
 

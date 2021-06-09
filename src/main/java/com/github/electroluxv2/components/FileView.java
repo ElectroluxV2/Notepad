@@ -2,9 +2,7 @@ package com.github.electroluxv2.components;
 
 import com.github.electroluxv2.utils.StringUtils;
 import javafx.geometry.Insets;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Tab;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -23,6 +21,7 @@ public class FileView extends Tab {
     private final VBox labelContainer;
     private final ScrollPane scrollPane;
     private boolean bind = false;
+    private boolean modified = false;
 
     public FileView(final File file) {
         super(file.getName());
@@ -54,6 +53,7 @@ public class FileView extends Tab {
         // Add new labels when user input
         textArea.textProperty().addListener(observable -> {
             setText(this.file.getName() + " *");
+            modified = true;
             handleLineNumbers();
         });
 
@@ -63,6 +63,28 @@ public class FileView extends Tab {
             if (textArea.getScrollTop() > 0 && !bind) {
                 bind = true;
                 scrollPane.vvalueProperty().bindBidirectional(textArea.vvalueProperty());
+            }
+        });
+
+
+        // Prevent work lost
+        setOnCloseRequest(event -> {
+            // Only when there are any changes
+            if (!modified) {
+                return;
+            }
+
+            final var alert = new Alert(Alert.AlertType.CONFIRMATION, "Close without saving ?", ButtonType.YES, ButtonType.FINISH, ButtonType.CANCEL);
+            alert.showAndWait();
+
+            if (alert.getResult().equals(ButtonType.CANCEL)) {
+                event.consume();
+            } else if (alert.getResult().equals(ButtonType.APPLY)) {
+                try {
+                    save();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         });
     }
@@ -85,6 +107,7 @@ public class FileView extends Tab {
         fw.close();
         setText(saveAsFile.getName());
         file = saveAsFile;
+        modified = false;
     }
 
     public ModdedTextArea getTextArea() {
