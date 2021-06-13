@@ -70,7 +70,7 @@ public class FileView extends Tab {
             // Run auto save
             if (EditorProperties.getBoolean("autoSaveEnabled")) {
                 if (autoSaveFuture != null) {
-                    autoSaveFuture.cancel(false);
+                    autoSaveFuture.cancel(true);
                 }
 
                 autoSaveFuture = scheduledExecutorService.schedule(this::onAutoSave, 1000, TimeUnit.MILLISECONDS);

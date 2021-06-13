@@ -80,7 +80,7 @@ public class Notepad extends Application {
 
         final var enabled = topMenu.fileAutoSave.isSelected();
 
-        EditorProperties.save("autoSave", String.valueOf(enabled));
+        EditorProperties.save("autoSaveEnabled", String.valueOf(enabled));
         if (enabled) {
            onSaveFileAll();
         }
