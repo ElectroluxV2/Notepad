@@ -32,10 +32,7 @@ public class ModdedMenuItem extends MenuItem {
         setOnAction(actionEvent -> {
             try {
                 if (handler != null) handler.call();
-            } catch (Exception exception) {
-                exception.printStackTrace();
-                System.err.println(exception.getMessage());
-            }
+            } catch (final Exception e) { ErrorAlert.Show(e); }
         });
     }
 }

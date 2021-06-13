@@ -15,11 +15,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.SecretKey;
 import java.io.IOException;
-import java.security.InvalidKeyException;
 
 public class Notepad extends Application {
     final TopMenu topMenu = new TopMenu();
@@ -32,7 +29,7 @@ public class Notepad extends Application {
     }
 
     @Override
-    public void start(final Stage stage) throws IOException {
+    public void start(final Stage stage) {
         stage.setTitle("Notepad");
         stage.setScene(scene);
         stage.show();
@@ -48,7 +45,7 @@ public class Notepad extends Application {
         });
     }
 
-    private void loadUserChoices() throws IOException {
+    private void loadUserChoices() {
         // User choices
         topMenu.viewDarkEnabled.setSelected(EditorProperties.getBoolean("darkModeEnabled"));
         DarkMode.change(scene, topMenu.viewDarkEnabled.isSelected());
@@ -83,13 +80,9 @@ public class Notepad extends Application {
 
         final var enabled = topMenu.fileAutoSave.isSelected();
 
-        try {
-            EditorProperties.save("autoSave", String.valueOf(enabled));
-            if (enabled) {
-               onSaveFileAll();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        EditorProperties.save("autoSave", String.valueOf(enabled));
+        if (enabled) {
+           onSaveFileAll();
         }
         return null;
     }
@@ -106,7 +99,7 @@ public class Notepad extends Application {
 
     }
 
-    private Void onEncrypt() throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
+    private Void onEncrypt() {
         final SecretKey secretKey = Crypt.generateKey();
         final String encoded = Crypt.encodeKey(secretKey);
 
@@ -118,7 +111,7 @@ public class Notepad extends Application {
         return null;
     }
 
-    private Void onDecrypt() throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
+    private Void onDecrypt() {
         final var alert = new GetTextAlert(Alert.AlertType.INFORMATION, "Provide your key");
         alert.showAndWait();
         final var encodedKey = alert.getText();
@@ -162,15 +155,17 @@ public class Notepad extends Application {
         return null;
     }
 
-    public Void onNewFile() throws IOException {
+    public Void onNewFile() {
         final var fileChooser = new FileChooser();
         fileChooser.setTitle("Create new");
 
         final var file = fileChooser.showSaveDialog(scene.getWindow());
 
-        if (!file.createNewFile()) {
-            System.err.printf("%s already exists, opening instead", file);
-        }
+        try {
+            if (!file.createNewFile()) {
+                System.err.printf("%s already exists, opening instead", file);
+            }
+        } catch (final IOException e) { ErrorAlert.Show(e); }
 
         final var view = new FileView(file);
         view.getTextArea().setEditable(!topMenu.viewDisableEdit.isSelected());
@@ -180,13 +175,13 @@ public class Notepad extends Application {
         return null;
     }
 
-    private Void onSaveFile() throws IOException {
+    private Void onSaveFile() {
         final var view = fileViewContainer.getCurrent();
         view.save();
         return null;
     }
 
-    private Void onSaveFileAs() throws IOException {
+    private Void onSaveFileAs() {
         final var view = fileViewContainer.getCurrent();
 
         final var fileChooser = new FileChooser();
@@ -202,7 +197,7 @@ public class Notepad extends Application {
         return null;
     }
 
-    private Void onSaveFileAll() throws IOException {
+    private Void onSaveFileAll() {
         for (final var view : fileViewContainer.getViews()) {
             view.save();
         }

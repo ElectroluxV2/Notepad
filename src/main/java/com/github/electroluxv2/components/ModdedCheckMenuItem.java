@@ -32,9 +32,7 @@ public class ModdedCheckMenuItem extends CheckMenuItem {
         setOnAction(actionEvent -> {
             try {
                 if (handler != null) handler.call();
-            } catch (Exception exception) {
-                System.err.println(exception.getMessage());
-            }
+            } catch (final Exception e) { ErrorAlert.Show(e); }
         });
     }
 }

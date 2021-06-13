@@ -5,7 +5,7 @@ import javafx.scene.Scene;
 import java.io.IOException;
 
 public class DarkMode {
-    public static Void change(final Scene scene, final boolean enabled) throws IOException {
+    public static Void change(final Scene scene, final boolean enabled) {
         if (enabled) {
             scene.getStylesheets().add("dark.css");
         } else {

@@ -103,61 +103,52 @@ public class FileView extends Tab {
             if (alert.getResult().equals(ButtonType.CANCEL)) {
                 event.consume();
             } else if (alert.getResult().equals(ButtonType.APPLY)) {
-                try {
-                    save();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                save();
             }
         });
     }
 
     private Void onAutoSave() {
         System.out.println("Preforming auto save after one second of idle");
-
         // I know its indefinite loop due to javafx's events but I don't have time to make it work better than using System.exit()
-        Platform.runLater(() -> {
-            try {
-                save();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
-
+        Platform.runLater(this::save);
         return null;
     }
 
-    public void save() throws IOException {
+    public void save() {
         save(file);
     }
 
-    public void save(final File saveAsFile) throws IOException {
+    public void save(final File saveAsFile) {
         final var contest = textArea.getParagraphs();
-        final var fw = new FileWriter(saveAsFile, false);
-        contest.forEach(sequence -> {
-            try {
-                fw.append(sequence);
-                fw.append(System.lineSeparator());
-            } catch (IOException e) {
-                e.printStackTrace(System.err);
-            }
-        });
-        fw.close();
-        setText(saveAsFile.getName());
-        file = saveAsFile;
-        modified = false;
+        try (final var fw = new FileWriter(saveAsFile, false)) {
+            contest.forEach(sequence -> {
+                try {
+                    fw.append(sequence);
+                    fw.append(System.lineSeparator());
+                } catch (IOException e) { ErrorAlert.Show(e); }
+            });
+            fw.close();
+            setText(saveAsFile.getName());
+            file = saveAsFile;
+            modified = false;
+        } catch (IOException e) { ErrorAlert.Show(e); }
     }
 
-    public void encrypt(final SecretKey secretKey) throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
+    public void encrypt(final SecretKey secretKey) {
         final var text = getTextArea().getText();
-        final var encrypted = Crypt.encrypt(text, secretKey);
-        getTextArea().setText(encrypted);
+        try {
+            final String encrypted = Crypt.encrypt(text, secretKey);
+            getTextArea().setText(encrypted);
+        } catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) { ErrorAlert.Show(e); }
     }
 
-    public void decrypt(final SecretKey secretKey) throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
+    public void decrypt(final SecretKey secretKey) {
         final var encrypted = getTextArea().getText();
-        final var text = Crypt.decrypt(encrypted, secretKey);
-        getTextArea().setText(text);
+        try {
+            final var text = Crypt.decrypt(encrypted, secretKey);
+            getTextArea().setText(text);
+        } catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) { ErrorAlert.Show(e); }
     }
 
     public ModdedTextArea getTextArea() {

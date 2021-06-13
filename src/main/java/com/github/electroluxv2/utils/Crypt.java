@@ -1,11 +1,12 @@
 package com.github.electroluxv2.utils;
 
+import com.github.electroluxv2.components.ErrorAlert;
+
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.Base64;
 
 public class Crypt {
@@ -21,9 +22,7 @@ public class Crypt {
            kg = KeyGenerator.getInstance(algorithm);
            kg.init(256);
            dc = Cipher.getInstance(algorithm);
-       } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
-           e.printStackTrace();
-       } finally {
+       } catch (final NoSuchAlgorithmException | NoSuchPaddingException e) { ErrorAlert.Show(e); } finally {
            keyGenerator = kg;
            desCipher = dc;
        }
