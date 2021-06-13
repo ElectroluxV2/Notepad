@@ -1,7 +1,9 @@
 package com.github.electroluxv2.components;
 
 import com.github.electroluxv2.utils.Crypt;
+import com.github.electroluxv2.utils.EditorProperties;
 import com.github.electroluxv2.utils.StringUtils;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
@@ -18,6 +20,10 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.security.InvalidKeyException;
 import java.util.StringJoiner;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 public class FileView extends Tab {
@@ -25,6 +31,8 @@ public class FileView extends Tab {
     private final ModdedTextArea textArea;
     private final VBox labelContainer;
     private final ScrollPane scrollPane;
+    private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
+    private ScheduledFuture<Void> autoSaveFuture;
     private boolean bind = false;
     private boolean modified = false;
 
@@ -58,6 +66,16 @@ public class FileView extends Tab {
         // Add new labels when user input
         textArea.textProperty().addListener(observable -> {
             setText(this.file.getName() + " *");
+
+            // Run auto save
+            if (EditorProperties.getBoolean("autoSaveEnabled")) {
+                if (autoSaveFuture != null) {
+                    autoSaveFuture.cancel(false);
+                }
+
+                autoSaveFuture = scheduledExecutorService.schedule(this::onAutoSave, 1000, TimeUnit.MILLISECONDS);
+            }
+
             modified = true;
             handleLineNumbers();
         });
@@ -94,6 +112,21 @@ public class FileView extends Tab {
         });
     }
 
+    private Void onAutoSave() {
+        System.out.println("Preforming auto save after one second of idle");
+
+        // I know its indefinite loop due to javafx's events but I don't have time to make it work better than using System.exit()
+        Platform.runLater(() -> {
+            try {
+                save();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+
+        return null;
+    }
+
     public void save() throws IOException {
         save(file);
     }
@@ -106,7 +139,7 @@ public class FileView extends Tab {
                 fw.append(sequence);
                 fw.append(System.lineSeparator());
             } catch (IOException e) {
-                e.printStackTrace();
+                e.printStackTrace(System.err);
             }
         });
         fw.close();

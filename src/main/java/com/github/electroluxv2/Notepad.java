@@ -22,18 +22,13 @@ import java.io.IOException;
 import java.security.InvalidKeyException;
 
 public class Notepad extends Application {
-    final TopMenu topMenu;
-    final ModdedTabPane fileViewContainer;
-    final Label infoLabel;
-    final Scene scene;
+    final TopMenu topMenu = new TopMenu();
+    final ModdedTabPane fileViewContainer = new ModdedTabPane();
+    final Label infoLabel = new Label("Open file using top menu");
+    final Scene scene = new Scene(new VBox(topMenu, fileViewContainer, infoLabel), 1280, 800);
 
     public Notepad() {
-        // Create components
-        topMenu = new TopMenu();
-        fileViewContainer = new ModdedTabPane();
         VBox.setVgrow(fileViewContainer, Priority.ALWAYS);
-        infoLabel = new Label("Open file using top menu");
-        scene = new Scene(new VBox(topMenu, fileViewContainer, infoLabel), 1280, 800);
     }
 
     @Override
@@ -44,12 +39,21 @@ public class Notepad extends Application {
 
         loadUserChoices();
         respondToMenu();
+
+        stage.setOnCloseRequest((windowEvent) -> {
+            System.out.println("close");
+
+            // Terminate all Platform.runLater()
+            System.exit(0);
+        });
     }
 
     private void loadUserChoices() throws IOException {
         // User choices
         topMenu.viewDarkEnabled.setSelected(EditorProperties.getBoolean("darkModeEnabled"));
         DarkMode.change(scene, topMenu.viewDarkEnabled.isSelected());
+
+        topMenu.fileAutoSave.setSelected(EditorProperties.getBoolean("autoSaveEnabled"));
     }
 
     private void respondToMenu() {
@@ -59,6 +63,7 @@ public class Notepad extends Application {
         topMenu.fileSave.onAction(this::onSaveFile);
         topMenu.fileSaveAll.onAction(this::onSaveFileAll);
         topMenu.fileSaveAs.onAction(this::onSaveFileAs);
+        topMenu.fileAutoSave.onAction(this::onAutoSaveChange);
 
         // Respond to view Section
         topMenu.viewDisableEdit.onAction(this::setDisableOnEachTextArea);
@@ -72,6 +77,21 @@ public class Notepad extends Application {
         // Block some actions when no file is opened
         fileViewContainer.getSelectionModel().selectedItemProperty().addListener(this::checkIfActionsShouldBeEnabled);
         this.checkIfActionsShouldBeEnabled(null, null, null);
+    }
+
+    private Void onAutoSaveChange() {
+
+        final var enabled = topMenu.fileAutoSave.isSelected();
+
+        try {
+            EditorProperties.save("autoSave", String.valueOf(enabled));
+            if (enabled) {
+               onSaveFileAll();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private void checkIfActionsShouldBeEnabled(final ObservableValue<? extends Tab> ov, final Tab form, final Tab to) {
@@ -148,7 +168,9 @@ public class Notepad extends Application {
 
         final var file = fileChooser.showSaveDialog(scene.getWindow());
 
-        file.createNewFile();
+        if (!file.createNewFile()) {
+            System.err.printf("%s already exists, opening instead", file);
+        }
 
         final var view = new FileView(file);
         view.getTextArea().setEditable(!topMenu.viewDisableEdit.isSelected());

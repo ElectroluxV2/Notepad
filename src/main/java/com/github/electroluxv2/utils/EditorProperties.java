@@ -11,6 +11,7 @@ public class EditorProperties {
     private static final String ROOT_DIRECTORY = ".JavaFXPad";
     private static final String CONFIG_NAME = "app.config";
 
+    // I know this class read file within every call but it make it reflecting to changes to file immediately without need to watch file changes
     public static void save(final String key, final String value) throws IOException {
         final var properties = getAppProperties();
         properties.setProperty(key, value);
@@ -27,16 +28,31 @@ public class EditorProperties {
         save(getDefaultProperties());
     }
 
-    public static String getString(final String key) throws IOException {
-        return getAppProperties().getProperty(key);
+    public static String getString(final String key) {
+        try {
+            return getAppProperties().getProperty(key);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "";
+        }
     }
 
-    public static boolean getBoolean(final String key) throws IOException {
-        return Boolean.parseBoolean(getAppProperties().getProperty(key));
+    public static boolean getBoolean(final String key) {
+        try {
+            return Boolean.parseBoolean(getAppProperties().getProperty(key));
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
-    public static double getDouble(final String key) throws IOException {
-        return Double.parseDouble(getAppProperties().getProperty(key));
+    public static double getDouble(final String key) {
+        try {
+            return Double.parseDouble(getAppProperties().getProperty(key));
+        } catch (IOException e) {
+            e.printStackTrace();
+            return 0;
+        }
     }
 
     private static Properties getAppProperties() throws IOException {
